@@ -34,7 +34,12 @@ class Game:
 
   def run(self):
     self.cards = self.create_cards()
+    self.running = True
     self.gameloop()
+
+  def stop(self):
+    self.running = False
+    pygame.quit()
 
   def draw(self):
     # Rita bakgrunden
@@ -53,17 +58,30 @@ class Game:
 
 
   def gameloop(self):
-    while (True):
+    while (self.running):
       mousepos = pygame.mouse.get_pos()
       pygame.display.set_caption("%i, %i" % (mousepos[0], mousepos[1]))
 
-      # Känn av klick
-      for event in pygame.event.get():
+      events = pygame.event.get()
+
+      for event in events:
+        # Känn av klick
         if event.type == pygame.MOUSEBUTTONUP:
           #score += 1
           #print("Your score: %i" % (score))
           print("Mouse up at %i,%i" % (mousepos[0], mousepos[1]))
-      ## ------- 
+        ## ------- 
 
       self.draw()
       pygame.display.update()
+
+      # Avsluta spelet
+      for event in events:
+        if event.type == pygame.QUIT:
+          self.stop()
+          break
+
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+            self.stop()
+            break
