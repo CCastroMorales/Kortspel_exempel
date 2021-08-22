@@ -6,8 +6,9 @@ class Game:
   def __init__(self):
     pygame.init()
     pygame.font.init()
+    pygame.display.set_caption("Exempel: kortspel")
 
-    self.display = pygame.display.set_mode((500,400),0,32)
+    self.display = pygame.display.set_mode((600,400),0,32)
 
     self.myfont = pygame.font.SysFont(None, 30)
     self.textsurface = self.myfont.render('Samsam', False, (0, 0, 0))
@@ -16,10 +17,12 @@ class Game:
     cards = []
     x = 10
     y = 10
+    suits = [Suit.HEART, Suit.DIAMOND, Suit.CLOVER, Suit.SPADE]
+
     for i in range(0,4):
       for j in range(0,13):
-        card_value = y+1
-        card = Card(x, y, card_value)
+        card_value = j+1
+        card = Card(x, y, suits[i], card_value)
 
         if random.random() > 0.5:
           card.side = CARD_SIDE_FRONT
@@ -53,23 +56,35 @@ class Game:
 
     # Rita texten
     mousepos = pygame.mouse.get_pos()
-    mouse_pos_surface = self.myfont.render("%i, %i" % (mousepos[0], mousepos[1]), False, (0, 0, 0))
+    mx = mousepos[0]
+    my = mousepos[1]
+    card = self.card_at(mx, my)
+    if card is not None:
+      mouse_pos_surface = self.myfont.render("Card: %s at (%i,%i)" % (card, mx, my), False, (0, 0, 0))
+    else:
+      mouse_pos_surface = self.myfont.render("(%i,%i)" % (mx, my), False, (0, 0, 0))
     self.display.blit(mouse_pos_surface,(10,350))
 
+  def card_at(self, x, y):
+    for card in self.cards:
+      if card.at(x, y):
+        return card
+    return None
 
   def gameloop(self):
     while (self.running):
       mousepos = pygame.mouse.get_pos()
-      pygame.display.set_caption("%i, %i" % (mousepos[0], mousepos[1]))
-
       events = pygame.event.get()
 
       for event in events:
         # Känn av klick
         if event.type == pygame.MOUSEBUTTONUP:
-          #score += 1
-          #print("Your score: %i" % (score))
-          print("Mouse up at %i,%i" % (mousepos[0], mousepos[1]))
+          x = mousepos[0]
+          y = mousepos[1]
+          card = self.card_at(x, y)
+          if card is not None: 
+            print("Card: %s at (%i,%i)" % (card, x, y))
+            card.flip()
         ## ------- 
 
       self.draw()
